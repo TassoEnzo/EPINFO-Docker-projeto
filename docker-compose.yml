@@ -1,0 +1,54 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: epinfo123
+      MYSQL_DATABASE: db_EPI
+      MYSQL_USER: epinfo
+      MYSQL_PASSWORD: epinfo123
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./banco_de_dados/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - epinfo_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pepinfo123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      MYSQL_HOST:     db
+      MYSQL_USER:     root
+      MYSQL_PASSWORD: epinfo123
+      MYSQL_DB:       db_EPI
+    networks:
+      - epinfo_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - epinfo_net
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
+
+networks:
+  epinfo_net:
+    driver: bridge

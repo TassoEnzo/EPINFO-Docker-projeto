@@ -1,0 +1,58 @@
+services:
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: epinfo123
+      MYSQL_DATABASE: db_EPI
+      MYSQL_USER: epinfo
+      MYSQL_PASSWORD: epinfo123
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - epinfo_net
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager      
+      restart_policy:
+        condition: on-failure
+
+  backend:
+    image: epinfo_backend:latest      
+    environment:
+      MYSQL_HOST:     db
+      MYSQL_USER:     root
+      MYSQL_PASSWORD: epinfo123
+      MYSQL_DB:       db_EPI
+    networks:
+      - epinfo_net
+    deploy:
+      replicas: 3                     
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  frontend:
+    image: epinfo_frontend:latest    
+    ports:
+      - "80:80"
+    networks:
+      - epinfo_net
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 5s
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  db_data:
+
+networks:
+  epinfo_net:
+    driver: overlay                
