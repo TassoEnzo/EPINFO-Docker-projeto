@@ -12,6 +12,7 @@ services:
       - ./frontend:/epinfo/frontend:ro
       - ./docker-stack.yml:/epinfo/docker-stack.yml:ro
       - image_share:/epinfo/images
+      - token_share:/epinfo/token
     networks:
       dind_net:
         aliases:
@@ -29,6 +30,7 @@ services:
     volumes:
       - worker1_data:/var/lib/docker
       - image_share:/epinfo/images:ro
+      - token_share:/epinfo/token:ro
     networks:
       dind_net:
         aliases:
@@ -45,6 +47,7 @@ services:
     volumes:
       - worker2_data:/var/lib/docker
       - image_share:/epinfo/images:ro
+      - token_share:/epinfo/token:ro 
     networks:
       dind_net:
         aliases:
@@ -57,6 +60,7 @@ volumes:
   worker1_data:
   worker2_data:
   image_share:
+  token_share:
 
 networks:
   dind_net:
