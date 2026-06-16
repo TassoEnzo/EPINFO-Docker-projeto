@@ -4,12 +4,14 @@ services:
     image: docker:24-dind
     container_name: swarm_manager
     privileged: true
+    command: sh /epinfo/backend/manager.sh
     environment:
       DOCKER_TLS_CERTDIR: ""
     volumes:
       - manager_data:/var/lib/docker
       - ./backend:/epinfo/backend:ro
       - ./frontend:/epinfo/frontend:ro
+      - ./banco_de_dados:/epinfo/banco_de_dados:ro
       - ./docker-stack.yml:/epinfo/docker-stack.yml:ro
       - image_share:/epinfo/images
       - token_share:/epinfo/token
@@ -25,10 +27,12 @@ services:
     image: docker:24-dind
     container_name: swarm_worker_1
     privileged: true
+    command: sh /epinfo/backend/worker.sh
     environment:
       DOCKER_TLS_CERTDIR: ""
     volumes:
       - worker1_data:/var/lib/docker
+      - ./backend:/epinfo/backend:ro
       - image_share:/epinfo/images:ro
       - token_share:/epinfo/token:ro
     networks:
@@ -42,12 +46,14 @@ services:
     image: docker:24-dind
     container_name: swarm_worker_2
     privileged: true
+    command: sh /epinfo/backend/worker.sh
     environment:
       DOCKER_TLS_CERTDIR: ""
     volumes:
       - worker2_data:/var/lib/docker
+      - ./backend:/epinfo/backend:ro
       - image_share:/epinfo/images:ro
-      - token_share:/epinfo/token:ro 
+      - token_share:/epinfo/token:ro
     networks:
       dind_net:
         aliases:
