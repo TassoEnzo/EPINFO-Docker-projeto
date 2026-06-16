@@ -1,8 +1,13 @@
 #!/bin/sh
+export DOCKER_HOST=unix:///var/run/docker.sock
 dockerd --host=unix:///var/run/docker.sock &
 
 echo '[W] Aguardando Docker Engine...'
-until docker info > /dev/null 2>&1; do sleep 1; done
+sleep 10
+until docker -H unix:///var/run/docker.sock info > /dev/null 2>&1; do
+  echo '[W] Ainda aguardando...'
+  sleep 2
+done
 
 echo '[W] Aguardando imagens do manager...'
 until [ -f /epinfo/images/ready ]; do sleep 2; done
