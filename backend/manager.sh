@@ -22,9 +22,11 @@ docker swarm join-token worker -q > /epinfo/token/join.token.tmp
 cat /epinfo/token/join.token.tmp | sed 's/[^A-Za-z0-9:_-]//g' > /epinfo/token/join.token
 echo "Token salvo: $(cat /epinfo/token/join.token)"
 
-echo '[6/6] Aguardando workers e fazendo deploy...'
-sleep 25
+echo '[6/6] Aguardando workers entrarem no cluster...'
+until [ "$(docker node ls --filter role=worker -q 2>/dev/null | wc -l)" -ge 2 ]; do
+  sleep 3
+done
+echo 'Workers prontos!'
 docker stack deploy --resolve-image never -c /epinfo/docker-stack.yml epinfo
-echo 'Cluster pronto!'
 
 tail -f /dev/null
